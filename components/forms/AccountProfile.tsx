@@ -1,4 +1,5 @@
 "use client";
+import { updateUser } from "@/actions/user.action";
 import {
   Form,
   FormControl,
@@ -13,6 +14,7 @@ import { isImageChanged } from "@/lib/utils";
 import { userSchema } from "@/lib/validations/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import React, { ChangeEvent, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -21,7 +23,8 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 
 const AccountProfile = ({ user, btnTitle }: Props) => {
-  console.log("user--------------:", user);
+  const pathname = usePathname();
+  const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
   const { startUpload } = useUploadThing("media");
 
@@ -46,6 +49,20 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
     }
 
     // Update User Profile
+    await updateUser({
+      name: values.name,
+      path: pathname,
+      username: values.username,
+      userId: user.id,
+      bio: values.bio,
+      image: values.profile_photo,
+    });
+
+    if (pathname === "/profile/edit") {
+      router.back();
+    } else {
+      router.push("/");
+    }
   };
 
   const handleImage = (
