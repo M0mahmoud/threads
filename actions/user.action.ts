@@ -1,4 +1,5 @@
 "use server";
+import Thread from "@/models/Thread";
 import User from "@/models/User";
 import { revalidatePath } from "next/cache";
 import { connectDB } from "../lib/mongoose";
@@ -52,6 +53,29 @@ export async function fetchUser(userId: string) {
     //   path: "communities",
     //   model: Community,
     // });
+  } catch (error: any) {
+    throw new Error(`Failed to fetch user: ${error.message}`);
+  }
+}
+
+export async function fetchUserThreads(userId: string) {
+  try {
+    connectDB();
+
+    const threads = await User.findOne({ id: userId }).populate({
+      path: "threads",
+      model: Thread,
+      populate: {
+        path: "children",
+        model: Thread,
+        populate: {
+          path: "author",
+          model: User,
+          select: "name image id",
+        },
+      },
+    });
+    return threads;
   } catch (error: any) {
     throw new Error(`Failed to fetch user: ${error.message}`);
   }
