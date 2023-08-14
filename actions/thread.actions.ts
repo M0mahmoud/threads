@@ -46,7 +46,18 @@ export async function fetchPosts({ pageNumber = 1, peerPage = 20 }) {
       .sort({ createdAt: -1 })
       .skip(skipAmount)
       .limit(peerPage)
-      .populate("author");
+      .populate({
+        path: "author",
+        model: User,
+      })
+      .populate({
+        path: "children",
+        populate: {
+          path: "author",
+          model: User,
+          select: "_id name parentId image",
+        },
+      });
 
     const isNext = thradsCount > skipAmount + threads.length;
     return {
@@ -55,5 +66,72 @@ export async function fetchPosts({ pageNumber = 1, peerPage = 20 }) {
     };
   } catch (err) {
     console.log("err:", err);
+  }
+}
+
+export async function fetchThreadById(threadId: string) {
+  connectDB();
+  try {
+    const thread = await Thread.findById(threadId)
+      .populate({
+        path: "author",
+        model: User,
+        select: "_id id name image",
+      })
+      .populate({
+        path: "children",
+        populate: [
+          {
+            path: "author",
+            model: User,
+            select: "_id id name parentId image",
+          },
+          {
+            path: "children",
+            model: Thread,
+            populate: {
+              path: "author",
+              model: User,
+              select: "_id id name parentId image",
+            },
+          },
+        ],
+      })
+      .exec();
+
+    return thread;
+  } catch (err) {
+    throw new Error("Error Fetch Thread:" + err);
+  }
+}
+
+export async function addCommentToThread(
+  threadId: String,
+  commentText: string,
+  userId: String,
+  path: string
+) {
+  connectDB();
+  try {
+    // Find the original thread by its ID
+    const thread = await Thread.findById(threadId);
+    if (!thread) {
+      throw new Error("Thread not found");
+    }
+
+    // Create the new comment thread
+    const commentThread = new Thread({
+      text: commentText,
+      author: userId,
+      parentId: threadId, // Set the parentId to the original thread's ID
+    });
+    const savedCommentThread = await commentThread.save();
+
+    // Add the comment thread's ID to the original thread's children array
+    thread.children.push(savedCommentThread._id);
+    await thread.save();
+    revalidatePath(path);
+  } catch (err) {
+    throw new Error("Error Fetch Thread:" + err);
   }
 }
