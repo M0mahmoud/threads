@@ -1,4 +1,5 @@
-import { fetchUser } from "@/actions/user.action";
+import { fetchUser, getActivity } from "@/actions/user.action";
+import ActivityCard from "@/components/cards/ActivityCard";
 import ProfileHeader from "@/components/shared/ProfileHeader";
 import ThreadsTab from "@/components/shared/ThreadsTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,6 +15,8 @@ const Profile = async ({ params }: { params: { id: string } }) => {
 
   const userInfo = await fetchUser(params.id);
   if (!userInfo?.onboarded) redirect("/onboarding");
+  const activity = await getActivity(userInfo._id);
+
   return (
     <section>
       <ProfileHeader
@@ -44,6 +47,11 @@ const Profile = async ({ params }: { params: { id: string } }) => {
                     {userInfo.threads.length}
                   </p>
                 )}
+                {tab.label === "Replies" && (
+                  <p className="ml-1 rounded-sm bg-light-4 px-2 py-1 !text-tiny-medium text-light-2">
+                    {activity.length}
+                  </p>
+                )}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -53,11 +61,23 @@ const Profile = async ({ params }: { params: { id: string } }) => {
               value={tab.value}
               className="w-full text-light-1"
             >
-              <ThreadsTab
-                currentUserId={user.id}
-                accountId={userInfo.id}
-                accountType="User"
-              />
+              {tab.value === "threads" && (
+                <ThreadsTab
+                  currentUserId={user.id}
+                  accountId={userInfo.id}
+                  accountType="User"
+                />
+              )}
+
+              {tab.value === "replies" && <ActivityCard activity={activity} />}
+
+              {tab.value === "tagged" && (
+                <div className="mt-10 flex justify-center items-center">
+                  <h1 className="!text-base-regular text-light-3 text-3xl ">
+                    Soon...
+                  </h1>
+                </div>
+              )}
             </TabsContent>
           ))}
         </Tabs>

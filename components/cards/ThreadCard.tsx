@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import DeleteThread from "../forms/DeleteThread";
 
 interface Props {
   id: string;
@@ -32,7 +33,6 @@ const ThreadCard = ({
   parentId,
   content,
   author,
-  community,
   createdAt,
   comments,
   isComment,
@@ -109,6 +109,13 @@ const ThreadCard = ({
             </div>
           </div>
         </div>
+        <DeleteThread
+          threadId={String(id)}
+          currentUserId={currentUserId}
+          authorId={author.id}
+          parentId={parentId}
+          isComment={isComment}
+        />
       </div>
 
       {!isComment && comments.length > 0 && (
