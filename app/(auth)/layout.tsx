@@ -22,7 +22,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           className={`${inter.className} bg-dark-1`}
           suppressHydrationWarning={true}
         >
-          {children}
+          <div className="flex w-full min-h-screen justify-center items-center">
+            {children}
+          </div>
         </body>
       </html>
     </ClerkProvider>
