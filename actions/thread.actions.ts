@@ -33,7 +33,7 @@ export async function createThread({
   }
 }
 
-export async function fetchPosts({ pageNumber = 1, peerPage = 20 }) {
+export async function fetchPosts(pageNumber = 1, peerPage = 20) {
   try {
     connectDB();
     const skipAmount = (pageNumber - 1) * peerPage;
