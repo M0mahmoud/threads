@@ -30,6 +30,7 @@ const ThreadPage = async ({ params }: { params: { id: string } }) => {
           community={thread.community}
           createdAt={thread.createdAt}
           comments={thread.children}
+          likes={thread.likes}
         />
       </div>
 
@@ -41,7 +42,7 @@ const ThreadPage = async ({ params }: { params: { id: string } }) => {
         />
       </div>
 
-      <div className='mt-10'>
+      <div className="mt-10">
         {thread.children.map((childItem: any) => (
           <ThreadCard
             key={childItem._id}
@@ -53,6 +54,7 @@ const ThreadPage = async ({ params }: { params: { id: string } }) => {
             community={childItem.community}
             createdAt={childItem.createdAt}
             comments={childItem.children}
+            likes={childItem.likes}
             isComment
           />
         ))}

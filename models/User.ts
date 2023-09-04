@@ -22,6 +22,12 @@ const userSchema = new Schema({
       ref: "Thread",
     },
   ],
+  likedThreads: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Thread",
+    },
+  ],
   onboarded: {
     type: Boolean,
     default: false,

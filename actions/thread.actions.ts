@@ -51,6 +51,10 @@ export async function fetchPosts(pageNumber = 1, peerPage = 20) {
         model: User,
       })
       .populate({
+        path: "likes",
+        model: User,
+      })
+      .populate({
         path: "children",
         populate: {
           path: "author",

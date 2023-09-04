@@ -27,6 +27,12 @@ const threadSchema = new Schema({
       ref: "Thread",
     },
   ],
+  likes: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
 });
 const Thread = models.Thread || model("Thread", threadSchema);
 

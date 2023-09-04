@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import DeleteThread from "../forms/DeleteThread";
+import Love from "./Love";
 
 interface Props {
   id: string;
@@ -24,6 +25,11 @@ interface Props {
       image: string;
     };
   }[];
+  likes: [
+    {
+      id: string;
+    }
+  ];
   isComment?: boolean;
 }
 
@@ -36,7 +42,10 @@ const ThreadCard = ({
   createdAt,
   comments,
   isComment,
+  likes,
 }: Props) => {
+  const isLiked = likes?.some((like) => like.id === currentUserId);
+  const likesNumber = likes?.length;
   return (
     <article
       className={`flex w-full flex-col rounded-xl ${
@@ -67,12 +76,11 @@ const ThreadCard = ({
             <p className="mt-2 text-small-regular text-light-2">{content}</p>
             <div className={`${isComment && "mb-10"} mt-5 flex flex-col gap-3`}>
               <div className="flex gap-3.5">
-                <Image
-                  src="/assets/heart-gray.svg"
-                  alt="heart"
-                  width={24}
-                  height={24}
-                  className="cursor-pointer object-contain"
+                <Love
+                  userId={String(currentUserId)}
+                  threadId={String(id)}
+                  isLiked={isLiked}
+                  likesNumber={likesNumber}
                 />
                 <Link href={`/thread/${id}`}>
                   <Image

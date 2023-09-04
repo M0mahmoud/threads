@@ -1,7 +1,7 @@
 "use server";
 import Thread from "@/models/Thread";
 import User from "@/models/User";
-import { FilterQuery, SortOrder } from "mongoose";
+import { FilterQuery, SortOrder, Types } from "mongoose";
 import { revalidatePath } from "next/cache";
 import { connectDB } from "../lib/mongoose";
 
@@ -143,6 +143,43 @@ export async function getActivity(userId: string) {
     });
 
     return replies;
+  } catch (error) {
+    console.error("Error fetching replies: ", error);
+    throw error;
+  }
+}
+
+export async function handleLoveClick({
+  userId,
+  threadId,
+}: {
+  userId: string;
+  threadId: string;
+}) {
+  try {
+    connectDB();
+    const thread = await Thread.findById(threadId);
+    const user = await User.findOne({ id: userId });
+    const likedIndex = thread.likes.indexOf(user._id);
+    let liked;
+    if (likedIndex === -1) {
+      // User hasn't liked the thread
+      thread.likes.push(user._id);
+      user.likedThreads.push(thread._id);
+      liked = true;
+    } else {
+      // User has already liked the thread, remove their ID from likes
+      thread.likes.splice(likedIndex, 1);
+      user.likedThreads.pull(thread._id);
+      liked = false;
+    }
+    await thread.save();
+    await user.save();
+
+    // Fetch the updated number of likes from the thread
+    const updatedThread = await Thread.findById(threadId);
+    const numberOfLikes = updatedThread.likes.length;
+    return { liked, numberOfLikes };
   } catch (error) {
     console.error("Error fetching replies: ", error);
     throw error;
